@@ -1,44 +1,30 @@
+from django.contrib.auth.models import User
+from rest_framework import generics, permissions
+
 from .models import Brewery
-from .serializers import BrewerySerializer
-from django.http import Http404
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from .serializers import BrewerySerializer, UserSerializer
+from .permissions import IsAdminOrReadOnly
 
-class BreweryList(APIView):
-    def get(self, request, format=None):
-        breweries = Brewery.objects.all()
-        serializer = BrewerySerializer(breweries, many=True)
-        return Response(serializer.data)
+class BreweryList(generics.ListCreateAPIView):
+    queryset = Brewery.objects.all()
+    serializer_class = BrewerySerializer
 
-    def post(self, request, pk):
-        serializer = BrewerySerializer(data=request.data)
-        if serializer.isValid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    permission_classes = (IsAdminOrReadOnly,)
 
-class BreweryDetail(APIView):
-    def get_object(self, pk):
-        try:
-            brewery = Brewery.objects.get(pk=pk)
-        except Brewery.DoesNotExist:
-            raise Http404
+class BreweryDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Brewery.objects.all()
+    serializer_class = BrewerySerializer
 
-    def get(self, request, pk, format=None):
-        brewery = self.get_object(pk)
-        serializer = BrewerySerializer(brewery)
-        return Response(serializer.data)
+    permission_classes = (IsAdminOrReadOnly,)
 
-    def put(self, request, pk, format=None):
-        brewery = self.get_object(pk)
-        serializer = BrewerySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(request.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-    def delete(self, request, pk, format=None):
-        brewery = self.get_object(pk)
-        brewery.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    permission_classes = (permissions.IsAdminUser,)
+
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    permission_classes = (permissions.IsAdminUser,)
