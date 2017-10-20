@@ -79,11 +79,11 @@ WSGI_APPLICATION = 'BeerAggregate.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': db_name,
         'USER': db_user,
         'PASSWORD': db_user_password,
-        'HOST': 'localhost',
+        'HOST': '',
         'PORT': db_port_number,
     }
 }
